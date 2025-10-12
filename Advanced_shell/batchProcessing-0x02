@@ -3,23 +3,41 @@
 # Define the list of Pokémon
 pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
+# Base API URL
+API_URL="https://pokeapi.co/api/v2/pokemon"
+
 # Loop through each Pokémon
 for name in "${pokemon_list[@]}"; do
     echo "Fetching data for $name..."
 
-    # Fetch Pokémon data directly from the PokeAPI
-    curl -s "https://pokeapi.co/api/v2/pokemon/${name}" -o "${name}.json"
+    retries=0
+    success=false
 
-    # Check if the file exists and is not empty
-    if [ -s "${name}.json" ]; then
-        echo "Saved data to ${name}.json ✅"
-    else
-        echo "❌ Failed to fetch $name"
-        continue
+    # Retry loop (max 3 attempts)
+    while [ $retries -lt 3 ]; do
+        # Attempt to fetch data with curl
+        response=$(curl -s -o "${name}.json" -w "%{http_code}" "$API_URL/$name")
+
+        if [ "$response" -eq 200 ]; then
+            echo "Saved data to ${name}.json ✅"
+            success=true
+            break
+        else
+            retries=$((retries + 1))
+            echo "⚠️ Attempt $retries failed for $name (HTTP $response). Retrying in 2s..."
+            sleep 2
+        fi
+    done
+
+    # If all retries failed
+    if [ "$success" = false ]; then
+        echo "❌ Failed to fetch data for $name after 3 attempts."
+        # Optionally remove partial file
+        [ -f "${name}.json" ] && rm -f "${name}.json"
     fi
 
-    # Delay between requests to prevent rate-limiting
+    # Delay between Pokémon to avoid rate limiting
     sleep 1
 done
 
-echo "All data fetched and saved."
+echo "All data fetched (with retry logic)."
