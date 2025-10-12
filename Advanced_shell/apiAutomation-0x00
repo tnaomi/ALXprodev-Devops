@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    echo "Usage: $0 <pokemon_id (integer)>" | tee -a errors.txt
+    exit 1
+fi
+
+status=$(curl -s -o data.json -w "%{http_code}" "https://pokeapi.co/api/v2/pokemon/$1")
+if [ "$status" -ne 200 ]; then
+    echo "Error: Received HTTP status $status" | tee -a errors.txt
+    rm -f data.json
+    exit 1
+fi
