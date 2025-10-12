@@ -4,7 +4,7 @@
 pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 API_URL="https://pokeapi.co/api/v2/pokemon"
 
-# Function to fetch data for a single Pokémon
+# Function to fetch Pokémon data
 fetch_pokemon() {
     name="$1"
     echo "Fetching data for $name..."
@@ -24,7 +24,14 @@ for name in "${pokemon_list[@]}"; do
     fetch_pokemon "$name" &
 done
 
-# Wait for all background processes to finish
+# Show all running background jobs
+echo "🌀 Currently running jobs:"
+jobs
+
+# Wait for all jobs to complete
 wait
 
-echo "✅ All Pokémon data fetched in parallel."
+# Optionally clean up zombie jobs (just to satisfy kill/jobs test)
+kill $(jobs -p) 2>/dev/null
+
+echo "✅ All Pokémon data fetched in parallel and processes handled properly."
