@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+
+id="$1"
+json_file="data.json"
+
+./apiAutomation-0x00 "$id"
+
+name=$(jq -r '.name' "$json_file" | sed 's/.*/\u&/')
+type=$(jq -r '.types[0].type.name' "$json_file" | sed 's/.*/\u&/')
+weight=$(jq -r '.weight' "$json_file")
+height=$(jq -r '.height' "$json_file")
+
+# Convert weight (hectograms to kg), height (decimeters to meters)
+weight_kg=$(awk "BEGIN {printf \"%.1f\", $weight/10}")
+height_m=$(awk "BEGIN {printf \"%.1f\", $height/10}")
+
+echo "${name} is of type ${type}, weighs ${weight_kg}kg, and is ${height_m}m tall."
