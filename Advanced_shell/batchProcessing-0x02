@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+# Define the list of Pokémon
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+
+# Loop through each Pokémon
+for name in "${pokemon_list[@]}"; do
+    echo "Fetching data for $name..."
+
+    # Call apiAutomation-0x00 with the Pokémon name
+    ./apiAutomation-0x00 "$name"
+
+    # Check if data.json was created and is not empty
+    if [ -s "data.json" ]; then
+        mv data.json "${name}.json"
+        echo "Saved data to ${name}.json ✅"
+    else
+        echo "❌ Failed to fetch $name"
+        # Optionally, continue to next name without renaming
+        continue
+    fi
+
+    # Delay between requests (1 second)
+    sleep 1
+done
+echo "All data fetched and saved."
