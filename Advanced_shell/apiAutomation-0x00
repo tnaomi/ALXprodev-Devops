@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
-if ! [[ "$1" =~ ^[0-9]+$ ]]; then
-    echo "Usage: $0 <pokemon_id (integer)>" | tee -a errors.txt
+if ! [[ "$1" ]]; then
+    echo "Usage: $0 <pokemon_id (id or name)>" | tee -a errors.txt
     exit 1
 fi
 
@@ -10,4 +10,6 @@ if [ "$status" -ne 200 ]; then
     echo "Error: Received HTTP status $status" | tee -a errors.txt
     rm -f data.json
     exit 1
+else
+    [ -f errors.txt ] && rm errors.txt
 fi
